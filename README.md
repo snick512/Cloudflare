@@ -7,7 +7,13 @@
 
  Contributions welcome!
 
- # Compiling
+ # Running and Compiling
+ config.txt
+ ```ini
+API_KEY=apikey
+EMAIL=email
+```
+
  Setup on Ubuntu 20.04, required (or will be):
  `libcurl4-openssl-dev libcjson-dev`
 
