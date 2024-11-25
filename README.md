@@ -1,7 +1,7 @@
 # Cloudflare
  A Cloudflare tool to manage the basics of zones using their direct API.
 
- The .sh is for a simple, terminal based interace style, and remains open until terminated. 
+ The .sh is for a simple, terminal based interface style, and remains open until terminated. 
 
  Or, you may use bin/cloudflare (a binary) directly. 
 
