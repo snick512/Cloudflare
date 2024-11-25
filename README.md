@@ -19,15 +19,15 @@
 `./cloudflare.sh`
 
  You may use the binary directly:
-1. - List zones:
+- List zones:
     `./cloudflare list_zones`
-  - Add/update a DNS record:
+- Add/update a DNS record:
     `./cloudflare add_update_record <zone_id> A example.com 192.0.2.1 3600 1`
     
-  - Delete a DNS record:
+- Delete a DNS record:
     `./cloudflare delete_record <zone_id> <record_id>`
     
-  - Purge cache:
+- Purge cache:
     `./cloudflare purge_cache <zone_id>`
 
 ### Ideas: 
