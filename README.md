@@ -42,8 +42,8 @@ Proxied: 1
 IP: x
 $ 
 ```
-
-
+## The .sh
+cloudflare.sh is a (right now) simple, persisting way to add/delete records. 
 ```bash
 ./cloudflare.sh
 ```
