@@ -34,7 +34,7 @@ To store record IDs:
 
 To retrieve IDs:
 ```bash
-$ ./zone display_record wiki.wvpirates.org
+$ ./map display_record wiki.wvpirates.org
 Domain/Subdomain: wiki.wvpirates.org
 Zone ID: x
 Record ID: x
