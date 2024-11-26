@@ -5,6 +5,13 @@
 
  Contributions welcome!
 
+ # Screenshots 
+ Using cloudflare.sh:
+ ![cloudflare.sh](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174217/Termius_RMgaey251v.png)
+
+ Map:
+ ![map](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174522/Termius_qXl1P6xJw1.png)
+
  # Running and Compiling
  config.txt
  ```ini
@@ -69,6 +76,8 @@ DNS: Read (for reading DNS records)
 DNS: Edit (for updating or adding DNS records)
 Zone: Settings (if you need to modify zone settings, like enabling/disabling proxying)
 ```
+
+![Cloudflare API Token Permissions](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174700/msedge_TFzbPee0Ai.png)
 
 ### Ideas: 
 - Map Zone IDs to domains automatically. 
