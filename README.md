@@ -17,6 +17,7 @@ EMAIL=email
 
  ```bash 
  gcc -o cloudflare base.c -lcurl -lcjson
+ gcc -o map zone.c -lcurl -lcjson
  ```
 
  # Running
