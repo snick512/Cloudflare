@@ -3,8 +3,6 @@
 
  The .sh is for a simple, terminal based interface style, and remains open until terminated. 
 
- Or, you may use bin/cloudflare (a binary) directly. 
-
  Contributions welcome!
 
  # Running and Compiling
@@ -22,7 +20,11 @@ EMAIL=email
  ```
 
  # Running
-`./cloudflare.sh`
+```bash
+chmod +x cloudflare
+chmod +x cloudflare.sh
+./cloudflare.sh
+```
 
  You may use the binary directly:
 - List zones:
