@@ -20,10 +20,31 @@ EMAIL=email
  gcc -o map zone.c -lcurl -lcjson
  ```
 
- # Running
 ```bash
-chmod +x cloudflare
-chmod +x cloudflare.sh
+chmod +x cloudflare map cloudflare.sh
+```
+
+ ## Running
+`zone_map.txt` keeps track of Zone/Record IDs. 
+
+To store record IDs:
+```bash
+./map list_zones
+```
+
+To retrieve IDs:
+```bash
+$ ./zone display_record wiki.wvpirates.org
+Domain/Subdomain: wiki.wvpirates.org
+Zone ID: x
+Record ID: x
+Proxied: 1
+IP: x
+$ 
+```
+
+
+```bash
 ./cloudflare.sh
 ```
 
