@@ -21,7 +21,7 @@ typedef struct {
     char ip_address[256];
 } ZoneMap;
 
-ZoneMap zone_map[100];
+ZoneMap *zone_map = NULL;
 int zone_map_size = 0;
 
 // Helper structure for holding HTTP response
@@ -92,6 +92,12 @@ void load_zone_map() {
         char *ip_address = strtok(NULL, "\n");
 
         if (domain && zone_id && record_id && proxied && ip_address) {
+            zone_map = realloc(zone_map, (zone_map_size + 1) * sizeof(ZoneMap));
+            if (zone_map == NULL) {
+                fprintf(stderr, "Memory allocation error\n");
+                return;
+            }
+
             strncpy(zone_map[zone_map_size].domain, domain, sizeof(zone_map[zone_map_size].domain) - 1);
             strncpy(zone_map[zone_map_size].zone_id, zone_id, sizeof(zone_map[zone_map_size].zone_id) - 1);
             strncpy(zone_map[zone_map_size].record_id, record_id, sizeof(zone_map[zone_map_size].record_id) - 1);
@@ -135,6 +141,11 @@ void update_zone_map(const char *domain, const char *zone_id, const char *record
     }
 
     // New entry
+    zone_map = realloc(zone_map, (zone_map_size + 1) * sizeof(ZoneMap));
+    if (zone_map == NULL) {
+        fprintf(stderr, "Memory allocation error\n");
+        return;
+    }
     strncpy(zone_map[zone_map_size].domain, domain, sizeof(zone_map[zone_map_size].domain) - 1);
     strncpy(zone_map[zone_map_size].zone_id, zone_id, sizeof(zone_map[zone_map_size].zone_id) - 1);
     strncpy(zone_map[zone_map_size].record_id, record_id, sizeof(zone_map[zone_map_size].record_id) - 1);
@@ -175,24 +186,22 @@ char *make_request(const char *url, const char *method, const char *payload) {
         }
 
         res = curl_easy_perform(curl);
-
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         }
 
         curl_easy_cleanup(curl);
-        curl_slist_free_all(headers);
     }
 
     return chunk.response;
 }
 
-// Function to list zones and update zone map with record IDs for all domains and subdomains
+// Function to list zones
 void list_zones() {
     char url[512];
     snprintf(url, sizeof(url), "%s/zones", API_URL);
-
     char *response = make_request(url, "GET", NULL);
+
     if (response) {
         cJSON *json = cJSON_Parse(response);
         if (json) {
@@ -238,8 +247,6 @@ void list_zones() {
                 }
             }
             cJSON_Delete(json);
-        } else {
-            fprintf(stderr, "Error parsing JSON response.\n");
         }
         free(response);
     }
