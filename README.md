@@ -25,7 +25,7 @@ chmod +x cloudflare map cloudflare.sh
 ```
 
  ## Running
-`zone_map.txt` keeps track of Zone/Record IDs. 
+`zone_map.txt` references Zone/Record IDs. 
 
 To store record IDs:
 ```bash
