@@ -12,10 +12,13 @@
 char API_KEY[256] = "";
 char EMAIL[256] = "";
 
-// Structure to hold domain-to-zone mappings
+// Structure to hold domain-to-zone mappings along with record ID, proxied status, and IP address
 typedef struct {
     char domain[256];
     char zone_id[256];
+    char record_id[256];
+    int proxied; // 0 or 1 (not proxied or proxied)
+    char ip_address[256];
 } ZoneMap;
 
 ZoneMap zone_map[100];
@@ -83,11 +86,17 @@ void load_zone_map() {
     char line[512];
     while (fgets(line, sizeof(line), file)) {
         char *domain = strtok(line, " ");
-        char *zone_id = strtok(NULL, "\n");
+        char *zone_id = strtok(NULL, " ");
+        char *record_id = strtok(NULL, " ");
+        char *proxied = strtok(NULL, " ");
+        char *ip_address = strtok(NULL, "\n");
 
-        if (domain && zone_id) {
+        if (domain && zone_id && record_id && proxied && ip_address) {
             strncpy(zone_map[zone_map_size].domain, domain, sizeof(zone_map[zone_map_size].domain) - 1);
             strncpy(zone_map[zone_map_size].zone_id, zone_id, sizeof(zone_map[zone_map_size].zone_id) - 1);
+            strncpy(zone_map[zone_map_size].record_id, record_id, sizeof(zone_map[zone_map_size].record_id) - 1);
+            zone_map[zone_map_size].proxied = atoi(proxied);
+            strncpy(zone_map[zone_map_size].ip_address, ip_address, sizeof(zone_map[zone_map_size].ip_address) - 1);
             zone_map_size++;
         }
     }
@@ -104,18 +113,21 @@ void save_zone_map() {
     }
 
     for (int i = 0; i < zone_map_size; i++) {
-        fprintf(file, "%s %s\n", zone_map[i].domain, zone_map[i].zone_id);
+        fprintf(file, "%s %s %s %d %s\n", zone_map[i].domain, zone_map[i].zone_id, zone_map[i].record_id, zone_map[i].proxied, zone_map[i].ip_address);
     }
 
     fclose(file);
 }
 
 // Function to update the zone map with a new mapping
-void update_zone_map(const char *domain, const char *zone_id) {
+void update_zone_map(const char *domain, const char *zone_id, const char *record_id, int proxied, const char *ip_address) {
     for (int i = 0; i < zone_map_size; i++) {
         if (strcmp(zone_map[i].domain, domain) == 0) {
             if (strcmp(zone_map[i].zone_id, zone_id) != 0) {
                 strncpy(zone_map[i].zone_id, zone_id, sizeof(zone_map[i].zone_id) - 1);
+                strncpy(zone_map[i].record_id, record_id, sizeof(zone_map[i].record_id) - 1);
+                zone_map[i].proxied = proxied;
+                strncpy(zone_map[i].ip_address, ip_address, sizeof(zone_map[i].ip_address) - 1);
                 save_zone_map();
             }
             return;
@@ -125,6 +137,9 @@ void update_zone_map(const char *domain, const char *zone_id) {
     // New entry
     strncpy(zone_map[zone_map_size].domain, domain, sizeof(zone_map[zone_map_size].domain) - 1);
     strncpy(zone_map[zone_map_size].zone_id, zone_id, sizeof(zone_map[zone_map_size].zone_id) - 1);
+    strncpy(zone_map[zone_map_size].record_id, record_id, sizeof(zone_map[zone_map_size].record_id) - 1);
+    zone_map[zone_map_size].proxied = proxied;
+    strncpy(zone_map[zone_map_size].ip_address, ip_address, sizeof(zone_map[zone_map_size].ip_address) - 1);
     zone_map_size++;
     save_zone_map();
 }
@@ -172,7 +187,7 @@ char *make_request(const char *url, const char *method, const char *payload) {
     return chunk.response;
 }
 
-// Function to list zones and update zone map
+// Function to list zones and update zone map with record IDs for all domains and subdomains
 void list_zones() {
     char url[512];
     snprintf(url, sizeof(url), "%s/zones", API_URL);
@@ -185,12 +200,40 @@ void list_zones() {
             if (cJSON_IsArray(result)) {
                 cJSON *zone;
                 cJSON_ArrayForEach(zone, result) {
-                    cJSON *id = cJSON_GetObjectItem(zone, "id");
-                    cJSON *name = cJSON_GetObjectItem(zone, "name");
+                    cJSON *zone_id = cJSON_GetObjectItem(zone, "id");
+                    cJSON *zone_name = cJSON_GetObjectItem(zone, "name");
 
-                    if (cJSON_IsString(id) && cJSON_IsString(name)) {
-                        printf("Domain: %s, Zone ID: %s\n", name->valuestring, id->valuestring);
-                        update_zone_map(name->valuestring, id->valuestring);
+                    if (cJSON_IsString(zone_id) && cJSON_IsString(zone_name)) {
+                        // Fetch DNS records for the zone
+                        char record_url[512];
+                        snprintf(record_url, sizeof(record_url), "%s/zones/%s/dns_records", API_URL, zone_id->valuestring);
+                        char *records_response = make_request(record_url, "GET", NULL);
+
+                        if (records_response) {
+                            cJSON *records_json = cJSON_Parse(records_response);
+                            if (records_json) {
+                                cJSON *records_result = cJSON_GetObjectItem(records_json, "result");
+                                if (cJSON_IsArray(records_result)) {
+                                    cJSON *record;
+                                    cJSON_ArrayForEach(record, records_result) {
+                                        cJSON *record_id = cJSON_GetObjectItem(record, "id");
+                                        cJSON *name = cJSON_GetObjectItem(record, "name");
+                                        cJSON *proxied = cJSON_GetObjectItem(record, "proxied");
+                                        cJSON *content = cJSON_GetObjectItem(record, "content");
+
+                                        if (cJSON_IsString(record_id) && cJSON_IsString(name)) {
+                                            printf("Domain/Subdomain: %s, Zone ID: %s, Record ID: %s, Proxied: %d, IP: %s\n",
+                                                   name->valuestring, zone_id->valuestring, record_id->valuestring,
+                                                   proxied ? proxied->valueint : 0, content ? content->valuestring : "N/A");
+                                            update_zone_map(name->valuestring, zone_id->valuestring, record_id->valuestring,
+                                                            proxied ? proxied->valueint : 0, content ? content->valuestring : "");
+                                        }
+                                    }
+                                }
+                                cJSON_Delete(records_json);
+                            }
+                            free(records_response);
+                        }
                     }
                 }
             }
@@ -200,6 +243,21 @@ void list_zones() {
         }
         free(response);
     }
+}
+
+// Function to display record details for a domain/subdomain
+void display_record(const char *domain) {
+    for (int i = 0; i < zone_map_size; i++) {
+        if (strcmp(zone_map[i].domain, domain) == 0) {
+            printf("Domain/Subdomain: %s\n", domain);
+            printf("Zone ID: %s\n", zone_map[i].zone_id);
+            printf("Record ID: %s\n", zone_map[i].record_id);
+            printf("Proxied: %d\n", zone_map[i].proxied);
+            printf("IP: %s\n", zone_map[i].ip_address);
+            return;
+        }
+    }
+    printf("Domain/Subdomain not found.\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -213,6 +271,7 @@ int main(int argc, char *argv[]) {
         printf("Usage: ./cloudflare <command> [args]\n");
         printf("Commands:\n");
         printf("  list_zones\n");
+        printf("  display_record <domain/subdomain>\n");
         return 1;
     }
 
@@ -220,6 +279,8 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(command, "list_zones") == 0) {
         list_zones();
+    } else if (strcmp(command, "display_record") == 0 && argc == 3) {
+        display_record(argv[2]);
     } else {
         printf("Unknown command: %s\n", command);
     }
