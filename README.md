@@ -6,12 +6,9 @@
  Contributions welcome!
 
  # Screenshots 
- Using cloudflare.sh:
- ![cloudflare.sh](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174217/Termius_RMgaey251v.png)
-
+![cloudflare.sh](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174217/Termius_RMgaey251v.png)
  
- Map:
- ![map](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174522/Termius_qXl1P6xJw1.png)
+![map](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174522/Termius_qXl1P6xJw1.png)
 
  # Running and Compiling
  config.txt
