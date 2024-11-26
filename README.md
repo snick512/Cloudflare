@@ -60,5 +60,15 @@ cloudflare.sh is a (right now) simple, persisting way to add/delete records.
 - Purge cache:
     `./cloudflare purge_cache <zone_id>`
 
+# API Token permissions
+[Creating an API Token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
+
+```
+Zone: Read (for listing zones)
+DNS: Read (for reading DNS records)
+DNS: Edit (for updating or adding DNS records)
+Zone: Settings (if you need to modify zone settings, like enabling/disabling proxying)
+```
+
 ### Ideas: 
 - Map Zone IDs to domains automatically. 
