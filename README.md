@@ -53,6 +53,8 @@ cloudflare.sh is a (right now) simple, persisting way to add/delete records.
 ./cloudflare.sh
 ```
 
+## cloudflare (bin)
+
  You may use the binary directly:
 - List zones:
     `./cloudflare list_zones`
