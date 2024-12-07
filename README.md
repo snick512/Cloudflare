@@ -1,5 +1,5 @@
 # Cloudflare
- A Cloudflare tool to manage the basics of zones using their direct API.
+ A Cloudflare tool to manage the basics of zones using their direct API. An AI experiment.
 
  The .sh is for a simple, terminal based interface style, and remains open until terminated. 
 
