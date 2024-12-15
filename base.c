@@ -199,19 +199,6 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Function to delete a DNS record
 void delete_record(const char *zone_id, const char *record_id) {
     char url[512];
