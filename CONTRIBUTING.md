@@ -11,7 +11,6 @@ Thank you for your interest in contributing to the Cloudflare DNS Management Too
 1. **Development Environment**:
    - Install a C compiler (e.g., GCC or Clang).
    - Install `libcurl` and `cJSON` libraries.
-   - Ensure `make` or a similar build system is available.
 
 2. **Configuration File**:
    - Create a `config.txt` file with the following format:
