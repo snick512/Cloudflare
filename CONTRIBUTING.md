@@ -51,8 +51,8 @@ Thank you for your interest in contributing to the Cloudflare DNS Management Too
 
 Fork the repository to your own GitHub account and clone it to your local machine:
 ```bash
-$ git clone https://github.com/your-username/cloudflare-dns-management-tool.git
-$ cd cloudflare-dns-management-tool
+$ git clone https://github.com/snick512/Cloudflare.git
+$ cd Cloudflare
 ```
 
 #### 2. Create a Branch
@@ -64,7 +64,7 @@ $ git checkout -b feature/my-new-feature
 
 #### 3. Make Changes
 
-- Follow the [Style Guide](style_guide.md) for consistency.
+- Follow the [Style Guide](STYLE_GUIDE.md) for consistency.
 - Add or update comments to describe your code.
 - Ensure memory management is handled correctly.
 - Write meaningful commit messages.
