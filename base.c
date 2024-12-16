@@ -120,6 +120,8 @@ void list_zones() {
     }
 }
 
+// add update record
+
 void add_update_record(const char *zone_id, const char *type, const char *name, const char *content, int ttl, int proxied) {
     // Step 1: Fetch all DNS records for the given zone and name
     char fetch_url[512];
@@ -152,20 +154,21 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
     cJSON_ArrayForEach(record, result) {
         cJSON *record_name = cJSON_GetObjectItem(record, "name");
         cJSON *record_content = cJSON_GetObjectItem(record, "content");
+        cJSON *record_proxied = cJSON_GetObjectItem(record, "proxied");
         cJSON *record_id = cJSON_GetObjectItem(record, "id");
 
         // Check if the record matches the desired name
-        if (record_name && record_content && record_id && strcmp(record_name->valuestring, name) == 0) {
-            if (strcmp(record_content->valuestring, content) == 0) {
-                // The record exists and matches the desired content, no action needed
-                printf("Record already exists with the same content. No changes made.\n");
+        if (record_name && record_content && record_id && record_proxied && strcmp(record_name->valuestring, name) == 0) {
+            if (strcmp(record_content->valuestring, content) == 0 && record_proxied->valueint == proxied) {
+                // The record exists and matches the desired content and proxy status, no action needed
+                printf("Record already exists with the same content and proxy status. No changes made.\n");
                 record_exists = 1;
                 break;
             } else {
-                // The record exists but has different content, delete it
+                // The record exists but has different content or proxy status, delete it
                 const char *record_id_str = record_id->valuestring;
-                printf("Deleting existing record: %s (ID: %s, Content: %s)\n", 
-                        record_name->valuestring, record_id_str, record_content->valuestring);
+                printf("Deleting existing record: %s (ID: %s, Content: %s, Proxied: %d)\n", 
+                        record_name->valuestring, record_id_str, record_content->valuestring, record_proxied->valueint);
 
                 char delete_url[512];
                 snprintf(delete_url, sizeof(delete_url), "%s/zones/%s/dns_records/%s", API_URL, zone_id, record_id_str);
@@ -198,6 +201,7 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
         }
     }
 }
+
 
 // Function to delete a DNS record
 void delete_record(const char *zone_id, const char *record_id) {
