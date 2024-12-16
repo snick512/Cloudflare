@@ -198,6 +198,18 @@ char *make_request(const char *url, const char *method, const char *payload) {
 
 // Function to list zones
 void list_zones() {
+    // Delete the existing zone_map.txt file to ensure all new records are input
+    if (remove(ZONE_MAP_FILE) == 0) {
+        printf("Deleted existing zone_map.txt to input all new records.\n");
+    } else {
+        printf("zone_map.txt does not exist or could not be deleted. Proceeding to fetch records.\n");
+    }
+
+    // Reset the in-memory zone map
+    free(zone_map);
+    zone_map = NULL;
+    zone_map_size = 0;
+
     char url[512];
     snprintf(url, sizeof(url), "%s/zones", API_URL);
     char *response = make_request(url, "GET", NULL);
@@ -251,6 +263,7 @@ void list_zones() {
         free(response);
     }
 }
+
 
 // Function to display record details for a domain/subdomain
 void display_record(const char *domain) {
