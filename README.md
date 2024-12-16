@@ -1,9 +1,12 @@
-# Cloudflare
+# Cloudflare Zone Management tool
  A Cloudflare tool to manage the basics of zones using their direct API. An AI experiment.
 
  The .sh is for a simple, terminal based interface style, and remains open until terminated. 
 
- Contributions welcome! See [Contributing](CONTRIBUTING.md), and [Style Guide](STYLE_GUIDE.md)
+ # Contributions
+ Contributions welcome! 
+ 
+ See [Contributing](CONTRIBUTING.md), and [Style Guide](STYLE_GUIDE.md)
 
  # Screenshots 
 ![cloudflare.sh](https://isnick.nyc3.digitaloceanspaces.com/wp-content/uploads/2024/11/26174217/Termius_RMgaey251v.png)
