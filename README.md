@@ -1,6 +1,8 @@
 # Cloudflare Zone Management tool
  A Cloudflare tool to manage the basics of zones using their direct API. An AI experiment.
 
+ It accepts 1 line commands, and outputs JSON as the result. 
+
  The .sh is for a simple, terminal based interface style, and remains open until terminated. 
 
  # Contributions
