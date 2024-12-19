@@ -288,7 +288,7 @@ int main(int argc, char *argv[]) {
     load_zone_map();
 
     if (argc < 2) {
-        printf("Usage: ./cloudflare <command> [args]\n");
+        printf("Usage: ./map <command> [args]\n");
         printf("Commands:\n");
         printf("  list_zones\n");
         printf("  display_record <domain/subdomain>\n");
