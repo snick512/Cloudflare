@@ -168,4 +168,3 @@ $ valgrind ./cloudflare list_zones
 If you have any questions or need further clarification, please reach out by creating an issue or contacting the maintainers directly.
 
 Thank you for contributing!
-
