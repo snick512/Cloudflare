@@ -105,6 +105,17 @@ char *make_request(const char *url, const char *method, const char *payload) {
         curl_slist_free_all(headers);
     }
 
+    // Validate and return JSON
+    if (chunk.response) {
+        cJSON *json = cJSON_Parse(chunk.response);
+        if (!json) {
+            fprintf(stderr, "Error: Invalid JSON response: %s\n", chunk.response);
+            free(chunk.response);
+            return NULL;
+        }
+        cJSON_Delete(json);
+    }
+
     return chunk.response;
 }
 
@@ -115,15 +126,32 @@ void list_zones() {
 
     char *response = make_request(url, "GET", NULL);
     if (response) {
-        printf("Zones: %s\n", response);
+        // Print JSON directly for `jq` to consume
+        printf("%s\n", response);
         free(response);
     }
 }
 
-// add update record
 
+// Function to print JSON in a compact form for jq compatibility
+void print_json(const char *json_str) {
+    cJSON *json = cJSON_Parse(json_str);
+    if (!json) {
+        fprintf(stderr, "Error: Invalid JSON format.\n");
+        return;
+    }
+
+    char *formatted_json = cJSON_PrintUnformatted(json);
+    if (formatted_json) {
+        printf("%s\n", formatted_json);
+        free(formatted_json);
+    }
+
+    cJSON_Delete(json);
+}
+
+// Modify add_update_record
 void add_update_record(const char *zone_id, const char *type, const char *name, const char *content, int ttl, int proxied) {
-    // Step 1: Fetch all DNS records for the given zone and name
     char fetch_url[512];
     snprintf(fetch_url, sizeof(fetch_url), "%s/zones/%s/dns_records?type=%s&name=%s", API_URL, zone_id, type, name);
 
@@ -133,7 +161,11 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
         return;
     }
 
-    // Step 2: Parse the response to find matching records
+    // Validate JSON 
+    /* Remove all but JSON */
+    //printf("Fetched DNS Records:\n");
+    print_json(fetch_response);
+
     cJSON *json = cJSON_Parse(fetch_response);
     if (!json) {
         fprintf(stderr, "Error: Failed to parse JSON response.\n");
@@ -157,25 +189,25 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
         cJSON *record_proxied = cJSON_GetObjectItem(record, "proxied");
         cJSON *record_id = cJSON_GetObjectItem(record, "id");
 
-        // Check if the record matches the desired name
         if (record_name && record_content && record_id && record_proxied && strcmp(record_name->valuestring, name) == 0) {
             if (strcmp(record_content->valuestring, content) == 0 && record_proxied->valueint == proxied) {
-                // The record exists and matches the desired content and proxy status, no action needed
-                printf("Record already exists with the same content and proxy status. No changes made.\n");
+                /* Remove all but JSON */
+               // printf("Record already exists. No changes made.\n");
                 record_exists = 1;
                 break;
             } else {
-                // The record exists but has different content or proxy status, delete it
                 const char *record_id_str = record_id->valuestring;
-                printf("Deleting existing record: %s (ID: %s, Content: %s, Proxied: %d)\n", 
-                        record_name->valuestring, record_id_str, record_content->valuestring, record_proxied->valueint);
+                /* Remove all but JSON */
+               // printf("Deleting existing record (ID: %s):\n", record_id_str);
 
                 char delete_url[512];
                 snprintf(delete_url, sizeof(delete_url), "%s/zones/%s/dns_records/%s", API_URL, zone_id, record_id_str);
 
                 char *delete_response = make_request(delete_url, "DELETE", NULL);
                 if (delete_response) {
-                    printf("Delete Record Response: %s\n", delete_response);
+                    /* Remove all but JSON */
+                    //printf("Delete Record Response:\n");
+                    print_json(delete_response);
                     free(delete_response);
                 }
             }
@@ -185,7 +217,6 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
     cJSON_Delete(json);
     free(fetch_response);
 
-    // Step 3: Add the new record if it does not already exist
     if (!record_exists) {
         char add_url[512], payload[1024];
         snprintf(add_url, sizeof(add_url), "%s/zones/%s/dns_records", API_URL, zone_id);
@@ -196,24 +227,31 @@ void add_update_record(const char *zone_id, const char *type, const char *name, 
 
         char *add_response = make_request(add_url, "POST", payload);
         if (add_response) {
-            printf("Add Record Response: %s\n", add_response);
+            /* Remove all but JSON */
+           // printf("Add Record Response:\n");
+            print_json(add_response);
             free(add_response);
         }
     }
 }
 
-
-// Function to delete a DNS record
+// Modify delete_record
 void delete_record(const char *zone_id, const char *record_id) {
     char url[512];
     snprintf(url, sizeof(url), "%s/zones/%s/dns_records/%s", API_URL, zone_id, record_id);
 
     char *response = make_request(url, "DELETE", NULL);
     if (response) {
-        printf("Delete Record Response: %s\n", response);
+       
+       /* Remove all but JSON */
+       // printf("Delete Record Response:\n");
+        print_json(response);
         free(response);
     }
 }
+
+
+
 
 // Function to purge cache
 void purge_cache(const char *zone_id) {
